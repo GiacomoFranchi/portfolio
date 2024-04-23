@@ -32,6 +32,7 @@ export default {
 
 .main{
   margin-top: 10vh;
+  margin-bottom: 8vh;
   height: 82vh;
   @media screen and (max-width: 500px) {
         height: 91vh;

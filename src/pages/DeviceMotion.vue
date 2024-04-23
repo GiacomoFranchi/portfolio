@@ -16,53 +16,59 @@ export default {
       flipZDetected: false,
       directionX: false,
       directionY: false,
-      directionZ: false
+      directionZ: false,
+      scaricoResp: false,
     };
   },
   computed: {
-    // Calcola se lo schermo è più grande di quello di un tablet
     isScreenLarge() {
       return window.innerWidth > 800;
     }
   },
   methods: {
-startRecording() {
-  if ('permissions' in navigator) {
-    navigator.permissions.query({ name: 'accelerometer' }).then(permissionStatus => {
-      if (permissionStatus.state === 'prompt' || permissionStatus.state === 'denied') {
-        navigator.permissions.request({ name: 'accelerometer' }).then(newPermissionStatus => {
-          console.log('Nuovo stato del permesso accelerometro:', newPermissionStatus.state);
-        });
-      }
-
-      if (permissionStatus.state === 'granted') {
-        this.isRecording = true;
-        this.initialAlpha = null;
-        this.initialBeta = null;
-        this.initialGamma = null;
-        this.flipXDetected = false;
-        this.flipYDetected = false;
-        this.flipZDetected = false;
-
-        setTimeout(() => {
-          this.isRecording = false;
-          if (!this.flipXDetected && !this.flipYDetected && !this.flipZDetected) {
-            console.log("Nessun flip rilevato.");
+    getUrl(path) {
+      return new URL(`../assets/${path}`, import.meta.url);
+    },
+    hideOverlay() {
+      this.scaricoResp = true;
+    },
+    startRecording() {
+      if ('permissions' in navigator) {
+        navigator.permissions.query({ name: 'accelerometer' }).then(permissionStatus => {
+          if (permissionStatus.state === 'prompt' || permissionStatus.state === 'denied') {
+            navigator.permissions.request({ name: 'accelerometer' }).then(newPermissionStatus => {
+              console.log('Nuovo stato del permesso accelerometro:', newPermissionStatus.state);
+            });
           }
-        }, 3000); // Registra i dati per 3 secondi
 
-        window.addEventListener('devicemotion', this.handleDeviceMotion, false);
+          if (permissionStatus.state === 'granted') {
+            this.isRecording = true;
+            this.initialAlpha = null;
+            this.initialBeta = null;
+            this.initialGamma = null;
+            this.flipXDetected = false;
+            this.flipYDetected = false;
+            this.flipZDetected = false;
+
+            setTimeout(() => {
+              this.isRecording = false;
+              if (!this.flipXDetected && !this.flipYDetected && !this.flipZDetected) {
+                console.log("Nessun flip rilevato.");
+              }
+            }, 3000); // Registra i dati per 3 secondi
+
+            window.addEventListener('devicemotion', this.handleDeviceMotion, false);
+          }
+        }).catch(error => {
+          // Mostra un messaggio di errore se si verifica un problema con i sensori
+          console.error('Errore durante la verifica del permesso:', error);
+          this.error = "Si è verificato un errore durante la verifica del permesso: " + error.message;
+        });
+      } else {
+        console.error('L\'API Permissions non è supportata dal browser.');
+        this.error = "L'API Permissions non è supportata dal browser.";
       }
-    }).catch(error => {
-      // Mostra un messaggio di errore se si verifica un problema con i sensori
-      console.error('Errore durante la verifica del permesso:', error);
-      this.error = "Si è verificato un errore durante la verifica del permesso: " + error.message;
-    });
-  } else {
-    console.error('L\'API Permissions non è supportata dal browser.');
-    this.error = "L'API Permissions non è supportata dal browser.";
-  }
-},
+    },
 
     stopRecording() {
       window.removeEventListener('devicemotion', this.handleDeviceMotion);
@@ -135,32 +141,32 @@ startRecording() {
       }
     }
   },
- // Riprodurre l'audio alla fine della registrazione
-playAudioAtEndOfRecording() {
-  // Riproduci l'audio solo se è stato rilevato un flip
-  if (this.flipXDetected && this.directionX) {
-    this.$refs.audioFrontflip.play();
-  }
-  if (this.flipXDetected && !this.directionX) {
-    this.$refs.audioBackflip.play();
-  }
-  if (this.flipYDetected && this.directionY) {
-    this.$refs.audioKickflip.play();
-  }
-  if (this.flipYDetected && !this.directionY) {
-    this.$refs.audioFrontflip.play();
-  }
-  if (this.flipZDetected && this.directionZ) {
-    this.$refs.audio360Spin.play();
-  }
-  if (this.flipZDetected && !this.directionZ) {
-    this.$refs.audio360Backspin.play();
-  }
-  if (!this.flipXDetected && !this.flipYDetected && !this.flipZDetected) {
-    this.$refs.audioNoflip.play();
-  }
-  // Ripeti lo stesso per gli altri tipi di flip
-},
+  // Riprodurre l'audio alla fine della registrazione
+  playAudioAtEndOfRecording() {
+    // Riproduci l'audio solo se è stato rilevato un flip
+    if (this.flipXDetected && this.directionX) {
+      this.$refs.audioFrontflip.play();
+    }
+    if (this.flipXDetected && !this.directionX) {
+      this.$refs.audioBackflip.play();
+    }
+    if (this.flipYDetected && this.directionY) {
+      this.$refs.audioKickflip.play();
+    }
+    if (this.flipYDetected && !this.directionY) {
+      this.$refs.audioFrontflip.play();
+    }
+    if (this.flipZDetected && this.directionZ) {
+      this.$refs.audio360Spin.play();
+    }
+    if (this.flipZDetected && !this.directionZ) {
+      this.$refs.audio360Backspin.play();
+    }
+    if (!this.flipXDetected && !this.flipYDetected && !this.flipZDetected) {
+      this.$refs.audioNoflip.play();
+    }
+    // Ripeti lo stesso per gli altri tipi di flip
+  },
 
   beforeDestroy() {
     this.playAudioAtEndOfRecording(); //riprodurre l'audio alla fine della registrazione
@@ -172,101 +178,273 @@ playAudioAtEndOfRecording() {
 
 
 <template>
-  <div>
-    <!-- <div class="overlay" v-if="isScreenLarge">
-      <p>il sito è utilizzabile solo su telefoni o teblet</p>
-    </div> -->
-    <div>
-      <h2>Benvenuto In fliPhone</h2>
-    <p v-if="isRecording">Registrazione attiva...</p>
-    <p v-else>
-      Questo Gioco registra i dati del sensore dopo aver premuto il pulsante e riporta il flip effettuato dal tuo telefono.
-      Lancia in aria il tuo dispositivo e prova a eseguire un flip!
-    </p>
+  <div class="container">
+    <!--AVVISO PER COMPUTER-->
+    <div class="pc-size" v-if="isScreenLarge">
+      <div class="txt-warn">
+        <h1 class="warn-title">
+          <i class="fa-solid fa-triangle-exclamation fa-flip" style="color: #dd1313;"></i>
+          ATTENZIONE
+          <i class="fa-solid fa-triangle-exclamation fa-flip" style="color: #dd1313;"></i>
+        </h1>
+        <h2>
+          <div class="fl-logo"><img :src="getUrl(`fliphone-svg.png`)" :alt="`logo FliPhone`"></div> è disponibile solo
+          su smartphone o tablet.
+        </h2>
+        <p class="txt-descr">
+          <hr>
+          Per goderti appieno l'esperienza interattiva di
+        <div class="fl-logo-s"><img :src="getUrl(`fliphone-svg.png`)" :alt="`logo FliPhone`"></div>, è necessario
+        utilizzare
+        uno smartphone o un tablet, poiché il gioco richiede la lettura dei dati del giroscopio per garantire un
+        coinvolgimento ottimale. <br> Sfruttando le potenzialità dei sensori integrati nei dispositivi mobili, <div
+          class="fl-logo-s"><img :src="getUrl(`fliphone-svg.png`)" :alt="`logo FliPhone`"></div> offre un'esperienza
+        dinamica che si adatta ai tuoi movimenti e
+        all'orientamento del dispositivo.
+        <br>
+        Ti invitiamo a esplorare <div class="fl-logo-s"><img :src="getUrl(`fliphone-svg.png`)" :alt="`logo FliPhone`">
+        </div> utilizzando uno smartphone o un tablet e
+        lasciarti trasportare in un'avventura coinvolgente e immersiva.
+        <br> Grazie per la comprensione e buon divertimento!
+        <hr>
+        </p>
+      </div>
     </div>
 
-    <button class="btn btn-primary" @click="startRecording" :disabled="isRecording">Avvia registrazione</button>
+    <!--AVVISO PER GIOCATORI-->
+    <div class="game-size" v-else v-if="!scaricoResp">
+      <div>
+        <h1><i class="fa-solid fa-triangle-exclamation fa-flip" style="color: #dd1313;"></i>
+          PRESTARE MOLTA ATTENZIONE
+          <i class="fa-solid fa-triangle-exclamation fa-flip" style="color: #dd1313;"></i>
+        </h1>
 
-    <div v-if="error !== null" class="error-message">{{ error }}</div>
+        <h5>Questo gioco coinvolge il lancio del telefono e richiede estrema attenzione. <br> Gli utenti partecipano a
+          loro rischio e pericolo.</h5>
 
-    <div class="risult-box">
-      <div v-if="flipXDetected && directionX">
-        <p>frontflip</p>
-        <audio ref="audioFrontflip" src="../public/audio/frontflip.m4a" autoplay></audio>
+        <span class="span">Precauzioni:</span>
+        <ul>
+          <li>
+            Assicurarsi di avere un'area sicura: Prima di lanciare il telefono, verificare che l'area circostante sia
+            priva di ostacoli o persone.
+          </li>
+          <li>
+            Monitorare il telefono durante il volo: Prestare attenzione al telefono durante il volo per evitare
+            eventuali
+            danni o lesioni.
+          </li>
+          <li>
+            Impugnare saldamente il telefono: Assicurarsi di tenere il telefono in modo sicuro e saldamente prima del
+            lancio.
+          </li>
+          <li>
+            Evitare lanci troppo forti che potrebbero compromettere la sicurezza del telefono o causare danni a persone
+            o
+            cose circostanti.
+          </li>
+        </ul>
+        <h6>
+          Esclusione di Responsabilità:
+        </h6>
+        <p>
+          Gli organizzatori del gioco non sono responsabili per eventuali danni personali,
+          danni materiali o perdita di dati causati dal partecipare a questo gioco. Gli utenti sono responsabili della
+          propria sicurezza e dell'integrità del proprio telefono durante il gioco.
+          Partecipando a questo gioco, gli utenti accettano di esonerare gli organizzatori e gli sviluppatori da
+          qualsiasi
+          responsabilità legale derivante dall'utilizzo del telefono durante il gioco.
+        </p>
       </div>
-      <div v-if="flipXDetected && !directionX">
-        <p>backflip</p>
-        <audio ref="audioBackflip" src="../public/audio/backflip.m4a"></audio>
+      <button class="btn btn-primary" @click="hideOverlay">ACCETTO</button>
+    </div>
+    <!--SCHERMATA DI GIOCO-->
+    <div class="game">
+      <div class="info">
+        <p v-if="isRecording">Registrazione attiva...</p>
+        <p v-else>
+          Questo Gioco registra i dati del sensore dopo aver premuto il pulsante e riporta il flip effettuato dal tuo
+          telefono.
+          Lancia in aria il tuo dispositivo e prova a eseguire un flip!
+        </p>
       </div>
-      <div v-if="flipYDetected && directionY">
-        <p>kickflip</p>
-        <audio ref="audioKickflip" src="../public/audio/kickflip.m4a"></audio>
-      </div>
-      <div v-if="flipYDetected && !directionY">
-        <p>heelflip</p>
-        <audio ref="audioHeelflip" src="../public/audio/heelflip.m4a"></audio>
-      </div>
-      <div v-if="flipZDetected && directionZ">
-        <p>360 spin</p>
-        <audio ref="audio360Spin" src="../public/audio/360spin.m4a"></audio>
-      </div>
-      <div v-if="flipZDetected && !directionZ">
-        <p>360 backspin</p>
-        <audio ref="audio360Backspin" src="../public/audio/360backspin.m4a"></audio>
-      </div>
-      <div v-if="!flipXDetected && !flipYDetected && !flipZDetected">
-        <p>Nessun flip</p>
-        <audio ref="audioNoflip" src="../public/audio/noflip.m4a"></audio>
+      <!--BOTTONE AVVIO-->
+      <button class="btn btn-danger" @click="startRecording" :disabled="isRecording">Avvia registrazione</button>
+
+      <div v-if="error !== null" class="error-message">{{ error }}</div>
+
+      <div class="risult-box">
+        <div v-if="flipXDetected && directionX">
+          <p>frontflip</p>
+          <audio ref="audioFrontflip" src="../public/audio/frontflip.m4a" autoplay></audio>
+        </div>
+        <div v-if="flipXDetected && !directionX">
+          <p>backflip</p>
+          <audio ref="audioBackflip" src="../public/audio/backflip.m4a"></audio>
+        </div>
+        <div v-if="flipYDetected && directionY">
+          <p>kickflip</p>
+          <audio ref="audioKickflip" src="../public/audio/kickflip.m4a"></audio>
+        </div>
+        <div v-if="flipYDetected && !directionY">
+          <p>heelflip</p>
+          <audio ref="audioHeelflip" src="../public/audio/heelflip.m4a"></audio>
+        </div>
+        <div v-if="flipZDetected && directionZ">
+          <p>360 spin</p>
+          <audio ref="audio360Spin" src="../public/audio/360spin.m4a"></audio>
+        </div>
+        <div v-if="flipZDetected && !directionZ">
+          <p>360 backspin</p>
+          <audio ref="audio360Backspin" src="../public/audio/360backspin.m4a"></audio>
+        </div>
+        <div v-if="!flipXDetected && !flipYDetected && !flipZDetected">
+          <p>Nessun flip</p>
+          <audio ref="audioNoflip" src="../public/audio/noflip.m4a"></audio>
+        </div>
       </div>
     </div>
   </div>
-
 </template>
 
 
 
-<style scoped>
+<style lang="scss" scoped>
+@use "../style/partials/mixin" as *;
+@use "../style/partials/variables" as *;
 
-
-div {
-  width: 70%;
-  height: 70%;
-  margin: 5rem auto;
-  .error-message {
-  color: red;
-  font-size: 1.2rem;
-  margin-top: 1rem;
-}
-
-.overlay {
+.container {
+  max-width: 100vw;
+  height: 100vh;
+  margin: 0;
   position: fixed;
-  top: 0;
-  left: 50;
-  width: 70%;
-  height: 60%;
-  background-color: rgb(0, 0, 0); 
-  z-index: 9999; 
+  z-index: 10;
+  background-image: url(../assets/Flbkg.png);
+  background-position: center;
+  background-size: cover;
   display: flex;
-  align-items: center;
   justify-content: center;
-  p{
-    font-size: 2rem;
-    font-weight: bolder;
-    color: red;
-  }
-}
-  .risult-box {
-    width: 50%;
+  align-items: center;
+
+  .pc-size {
+    max-width: 80%;
+    height: 80%;
+    background-color: beige;
+    text-align: center;
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    flex-direction: column;
+    padding: 2rem 1.5rem;
+    border-radius: 15% 30%;
+    position: absolute;
+    margin: 0;
+    z-index: 999;
 
-    p {
-      font-size: 1.5rem;
+    .txt-warn {
+
+      .warn-title {
+        color: red;
+
+        i {
+          margin: 0 0.5em;
+        }
+      }
+
+      .fl-logo {
+        display: inline;
+
+        img {
+          height: 40px;
+          ;
+        }
+      }
+
+      .txt-descr {
+        text-align: center;
+        padding: 0 2rem;
+        font-weight: 500;
+
+        .fl-logo-s {
+          display: inline;
+
+          img {
+            height: 20px;
+            ;
+          }
+        }
+      }
+    }
+  }
+
+  .game-size {
+    max-width: 80%;
+    height: 80%;
+    overflow: auto;
+    background-color: beige;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    border-radius: 15%;
+    position: absolute;
+    margin: 0;
+    z-index: 999;
+
+    .span {
       font-weight: bold;
-      padding-top: 3rem;
+      text-align: left;
+    }
+
+    .btn {
+      margin: 0 auto;
+    }
+
+    ul {
+      list-style: none;
+    }
+  }
+
+  .game {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 25%;
+
+    .info {
+      width: 50%;
+      margin: 0 auto;
+      text-align: center;
+      font-weight: bold;
+    }
+    .btn{
+      width: 50%;
+      margin: 0 auto;
+    }
+    .error-message {
+      color: red;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+
+    }
+
+    .risult-box {
+      background-color: rgba(0, 0, 0, 0.8);
+      text-align: center;
+      border: 1px solid red;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5rem auto;
+      flex-direction: column;
+      padding: 0.5rem 1rem;
+
+      p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: chocolate;
+
+      }
     }
   }
 }

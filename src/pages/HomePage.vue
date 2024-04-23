@@ -61,7 +61,7 @@ export default {
     max-width: 100%;
     background-color: $bg-color;
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 3rem 2rem;
     overflow-x: auto;
 
     h1 {

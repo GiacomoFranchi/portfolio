@@ -42,7 +42,7 @@ export default {
 
 header {
     width: 100vw;
-    z-index: 99;
+    z-index: 9;
     background-color: $color-f;
     display: flex;
     justify-content: space-between;
