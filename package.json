@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue/cli-service": "^5.0.8",
     "axios": "^1.6.2",
     "bootstrap": "^5.2.3",
-    "vue": "^3.3.8",
+    "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
