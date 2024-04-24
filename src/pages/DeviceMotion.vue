@@ -61,12 +61,12 @@ export default {
           }
         }).catch(error => {
           // Mostra un messaggio di errore se si verifica un problema con i sensori
-          console.error('Errore durante la verifica del permesso:', error);
-          this.error = "Si è verificato un errore durante la verifica del permesso: " + error.message;
+          console.error('MI SPIACE AL MOMENTO IL SITO È DISPONIBILE SOLO PER ANDROID SU CHROME :', error);
+          this.error = "MI SPIACE AL MOMENTO IL SITO È DISPONIBILE SOLO PER ANDROID SU CHROME: " + error.message;
         });
       } else {
-        console.error('L\'API Permissions non è supportata dal browser.');
-        this.error = "L'API Permissions non è supportata dal browser.";
+        console.error('MI SPIACE AL MOMENTO IL SITO È DISPONIBILE SOLO PER ANDROID SU CHROME');
+        this.error = "MI SPIACE AL MOMENTO IL SITO È DISPONIBILE SOLO PER ANDROID SU CHROME";
       }
     },
 
@@ -223,26 +223,22 @@ export default {
           loro rischio e pericolo.</h5>
 
         <span class="span">Precauzioni:</span>
-        <ul>
-          <li>
-            Assicurarsi di avere un'area sicura: Prima di lanciare il telefono, verificare che l'area circostante sia
+        
+          <p>
+            <strong>1.</strong> Assicurarsi di avere un'area sicura: Prima di lanciare il telefono, verificare che l'area circostante sia
             priva di ostacoli o persone.
-          </li>
-          <li>
-            Monitorare il telefono durante il volo: Prestare attenzione al telefono durante il volo per evitare
+            <br>    
+            <strong>2.</strong> Monitorare il telefono durante il volo: Prestare attenzione al telefono durante il volo per evitare
             eventuali
             danni o lesioni.
-          </li>
-          <li>
-            Impugnare saldamente il telefono: Assicurarsi di tenere il telefono in modo sicuro e saldamente prima del
+            <br>      
+            <strong>3.</strong> Impugnare saldamente il telefono: Assicurarsi di tenere il telefono in modo sicuro e saldamente prima del
             lancio.
-          </li>
-          <li>
-            Evitare lanci troppo forti che potrebbero compromettere la sicurezza del telefono o causare danni a persone
+            <br>      
+            <strong>4.</strong> Evitare lanci troppo forti che potrebbero compromettere la sicurezza del telefono o causare danni a persone
             o
             cose circostanti.
-          </li>
-        </ul>
+          </p>     
         <h6>
           Esclusione di Responsabilità:
         </h6>
@@ -319,11 +315,15 @@ export default {
   position: fixed;
   z-index: 10;
   background-image: url(../assets/Flbkg.png);
-  background-position: center;
+  background-position:top;
   background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
+  @media screen and (min-width: 801px) {
+    background-image: url(../assets/Flbkgxl.png);
+    background-position:top;
+        }
 
   .pc-size {
     max-width: 80%;
@@ -398,9 +398,6 @@ export default {
       margin: 0 auto;
     }
 
-    ul {
-      list-style: none;
-    }
   }
 
   .game {
@@ -408,7 +405,7 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
-    margin-top: 25%;
+    margin-top: 30%;
 
     .info {
       width: 50%;
@@ -421,15 +418,22 @@ export default {
       margin: 0 auto;
     }
     .error-message {
-      color: red;
-      font-size: 1.2rem;
-      margin-top: 1rem;
-
+      background-color: rgba(0, 0, 0, 0.8);
+      border: 1px solid red;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5rem auto;
+      flex-direction: column;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: chocolate;
     }
 
-    .risult-box {
+    .risult-box{
       background-color: rgba(0, 0, 0, 0.8);
-      text-align: center;
       border: 1px solid red;
       border-radius: 10px;
       display: flex;

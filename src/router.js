@@ -8,6 +8,7 @@ import DeviceMotion from "./pages/DeviceMotion.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue"
 
 const router = createRouter({
+    mode:history,
     history: createWebHistory(),
     routes: [
         {
